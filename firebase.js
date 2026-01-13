@@ -1,9 +1,17 @@
-<!-- firebase.js -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+// firebase.js (PURE JS FILE — NO <script> TAGS)
 
-<script>
+importScriptsIfNeeded();
+
+function importScriptsIfNeeded(){
+  if(typeof firebase !== "undefined") return;
+}
+
+// Firebase SDKs
+document.write('<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"><\/script>');
+document.write('<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"><\/script>');
+document.write('<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"><\/script>');
+
+setTimeout(()=>{
   const firebaseConfig = {
     apiKey: "AIzaSyBRFCf1NGzRibFY0u72x1iGEuyahpyw4XI",
     authDomain: "quiz-maker-a.firebaseapp.com",
@@ -16,6 +24,6 @@
 
   firebase.initializeApp(firebaseConfig);
 
-  const auth = firebase.auth();
-  const db = firebase.database();
-</script>
+  window.auth = firebase.auth();
+  window.db = firebase.database();
+}, 0);
