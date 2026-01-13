@@ -7,6 +7,7 @@
   const firebaseConfig = {
     apiKey: "AIzaSyBRFCf1NGzRibFY0u72x1iGEuyahpyw4XI",
     authDomain: "quiz-maker-a.firebaseapp.com",
+    databaseURL: "https://quiz-maker-a-default-rtdb.firebaseio.com",
     projectId: "quiz-maker-a",
     storageBucket: "quiz-maker-a.firebasestorage.app",
     messagingSenderId: "1065580063682",
