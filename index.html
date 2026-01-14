@@ -2,100 +2,144 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login | Quiz Maker</title>
+
+<!-- ZOOM DISABLED -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Locked Cipher</title>
 
 <style>
-*{box-sizing:border-box;font-family:Arial}
-body{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:linear-gradient(135deg,#667eea,#764ba2);
-}
-.card{
-  width:360px;
-  background:rgba(255,255,255,.15);
-  backdrop-filter:blur(12px);
-  padding:25px;
-  border-radius:14px;
-  color:#fff;
-}
-h2{text-align:center;margin-bottom:5px}
-p{text-align:center;margin-bottom:20px;font-size:14px}
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+    body {
+        background:#0d1117;
+        color:#fff;
+        font-family:Arial, sans-serif;
+        margin:0;
+        padding:0;
+        min-height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items:center;
 
-input,button{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border:none;
-  border-radius:8px;
-}
-input{background:rgba(255,255,255,.2);color:#fff}
-input::placeholder{color:#eee}
-button{
-  background:#5a6cff;
-  color:#fff;
-  cursor:pointer;
-}
-.toggle{
-  text-align:center;
-  margin-top:12px;
-  font-size:14px;
-  cursor:pointer;
-  color:#dfe3ff;
-}
-.error{color:#ffb3b3;text-align:center;font-size:13px}
+    }
+    .container {
+        width:100%;
+        max-width:450px;
+        padding:20px;
+    }
+    .box {
+        background:#161b22;
+        padding:22px;
+        border-radius:14px;
+        box-shadow:0 0 10px #00000060;
+    }
+    h2 { text-align:center; margin:0 0 15px; font-size:22px; }
+
+    input, textarea, button {
+        width:100%;
+        padding:14px;
+        margin-top:12px;
+        border:none;
+        border-radius:10px;
+        background:#0d1117;
+        color:#fff;
+        font-size:16px;
+        user-select:none;
+    }
+    textarea { resize:none; height:110px; }
+
+    button {
+        background:#238636;
+        font-weight:bold;
+        cursor:pointer;
+    }
+    button:hover { background:#2ea043; }
+    #copyBtn { background:#444; }
+    #copyBtn:hover { background:#555; }
+
+    #msg { text-align:center; margin-top:10px; }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h2 id="title">Login</h2>
-  <p id="subtitle">Sign in to your account</p>
+<div class="container">
 
-  <input id="email" type="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
+    <!-- PASSWORD -->
+    <div id="loginBox" class="box">
+        <h2>🔒 Enter Password</h2>
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="checkPass()">Unlock</button>
+        <p id="msg" style="color:red;"></p>
+    </div>
 
-  <button id="loginBtn">Login</button>
-  <button id="signupBtn" style="display:none">Signup</button>
+    <!-- MAIN TOOL -->
+    <div id="mainApp" style="display:none;">
+        <div class="box">
+            <h2>🔐 Shift Cipher</h2>
 
-  <div class="error" id="msg"></div>
+            <textarea id="text" placeholder="Enter text"></textarea>
+            <input id="key" type="number" value="5">
 
-  <div class="toggle" onclick="toggleMode()">Create / Login Account</div>
+            <button onclick="encrypt()">Encrypt</button>
+            <button onclick="decrypt()">Decrypt</button>
+
+            <textarea id="result" readonly></textarea>
+            <button id="copyBtn" onclick="copyResult()">📋 Copy Result</button>
+        </div>
+    </div>
+
 </div>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-
-<script src="firebase.js"></script>
 
 <script>
-let isLogin=true;
+// PASSWORD SYSTEM
+const MASTER_PASS = "nistoli"; 
 
-function toggleMode(){
-  isLogin=!isLogin;
-  loginBtn.style.display=isLogin?'block':'none';
-  signupBtn.style.display=isLogin?'none':'block';
-  title.innerText=isLogin?'Login':'Signup';
-  subtitle.innerText=isLogin?'Sign in to your account':'Create a new account';
-  msg.innerText='';
+function checkPass(){
+    let p = document.getElementById("pass").value;
+    if(p === MASTER_PASS){
+        document.getElementById("loginBox").style.display="none";
+        document.getElementById("mainApp").style.display="block";
+    } else {
+        document.getElementById("msg").innerText="❌ Wrong Password!";
+    }
 }
 
-loginBtn.onclick=()=>{
-  auth.signInWithEmailAndPassword(email.value,password.value)
-    .then(()=>location.href="quiz.html")
-    .catch(e=>msg.innerText=e.message);
-};
+// SHIFT CIPHER
+function shiftChar(c, key){
+    let code = c.charCodeAt(0);
+    if(code>=65 && code<=90) return String.fromCharCode(((code-65+key+26)%26)+65);
+    if(code>=97 && code<=122) return String.fromCharCode(((code-97+key+26)%26)+97);
+    return c;
+}
+function shiftText(t, k){ return [...t].map(c=>shiftChar(c,k)).join(""); }
 
-signupBtn.onclick=()=>{
-  auth.createUserWithEmailAndPassword(email.value,password.value)
-    .then(()=>location.href="quiz.html")
-    .catch(e=>msg.innerText=e.message);
-};
+function encrypt(){
+    let t = document.getElementById("text").value;
+    let k = parseInt(document.getElementById("key").value);
+    document.getElementById("result").value = shiftText(t, k);
+}
+
+function decrypt(){
+    let t = document.getElementById("text").value;
+    let k = parseInt(document.getElementById("key").value);
+    document.getElementById("result").value = shiftText(t, -k);
+}
+
+// COPY FIX
+function copyResult(){
+    let r = document.getElementById("result");
+    const temp = document.createElement("textarea");
+    temp.value = r.value;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand("copy");
+    temp.remove();
+}
 </script>
 
 </body>
